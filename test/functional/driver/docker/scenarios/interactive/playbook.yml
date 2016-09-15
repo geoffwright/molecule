@@ -1,0 +1,6 @@
+---
+- hosts: all
+  tasks:
+    - name: Interactive functional scenario
+      command: /bin/true
+      changed_when: False

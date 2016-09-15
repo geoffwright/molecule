@@ -1,0 +1,19 @@
+---
+driver:
+  name: docker
+
+ansible:
+  interactive:
+    ask_sudo_pass: True
+    password: foo
+
+docker:
+  containers:
+    - name: interactive-scenario
+      image: alpine
+      image_version: latest
+      dockerfile: Dockerfile
+      command: /bin/bash
+
+verifier:
+  name: testinfra

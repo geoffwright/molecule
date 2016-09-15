@@ -19,6 +19,8 @@
 #  THE SOFTWARE.
 
 import os
+import sys
+
 import sh
 
 from molecule import util
@@ -63,9 +65,12 @@ class AnsiblePlaybook(object):
         self.add_env_arg('PYTHONUNBUFFERED', '1')
         self.add_env_arg('ANSIBLE_FORCE_COLOR', 'true')
 
-        # passed through to sh, not ansible-playbook
-        self.add_cli_arg('_out', _out)
-        self.add_cli_arg('_err', _err)
+        interactive = self._get_interactive(args)
+        if interactive:
+            self._set_interactive(interactive)
+        else:
+            self.add_cli_arg('_out', _out)
+            self.add_cli_arg('_err', _err)
 
     def bake(self):
         """
@@ -114,6 +119,9 @@ class AnsiblePlaybook(object):
         if name == 'host_vars' or name == 'group_vars':
             return
 
+        if name == 'interactive':
+            return
+
         # verbose is weird, must be -vvvv not verbose=vvvv
         if name == 'verbose' and value:
             # for cases where someone passes in verbose: True
@@ -132,7 +140,7 @@ class AnsiblePlaybook(object):
         :param value: The value of argument to be added.
         :return: None
         """
-        if value:
+        if value or value == 0:
             self._cli[name] = value
 
     def remove_cli_arg(self, name):
@@ -181,3 +189,23 @@ class AnsiblePlaybook(object):
                 LOG.error('ERROR: {}'.format(e))
 
             return e.exit_code, None
+
+    def _get_interactive(self, args):
+        return args.get('interactive')
+
+    def _set_interactive(self, d):
+        self._interactive_password = d.pop('password', None)
+        self._aggregated = str()
+        for k, v in d.items():
+            self.add_cli_arg(k, v)
+        self.add_cli_arg('_out', self._ssh_interact)
+        self.add_cli_arg('_out_bufsize', 0)
+        self.add_cli_arg('_tty_in', True)
+        sys.stdout = os.fdopen(sys.stdout.fileno(), 'wb', 0)
+
+    # https://amoffat.github.io/sh/tutorials/2-interacting_with_processes.html
+    def _ssh_interact(self, char, stdin):
+        sys.stdout.write(char.encode())
+        self._aggregated += char
+        if self._aggregated.endswith('password:'):
+            stdin.put('{}\n'.format(self._interactive_password))

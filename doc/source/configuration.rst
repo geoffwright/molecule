@@ -76,6 +76,28 @@ The `raw_env_vars` section allows you to pass arbitrary environment variables
 to ansible-playbook. This can be useful, for example, if you want to do a role
 level override of a value normally found in ansible.cfg.
 
+Interactive Prompts
+^^^^^^^^^^^^^^^^^^^
+
+Ansible has a few flags which prompt the user for input.  The input can be
+passed to the underlying `ansible-playbook` call, through the `interactive`
+dict.
+
+`--ask-vault-pass`
+`--ask-pass`
+`--ask-sudo-pass`
+`--ask-su-pass`
+`--ask-become-pass`
+
+.. code-block:: yaml
+
+  ansible:
+    interactive:
+      ask_sudo_pass: True
+      password: foo
+
+.. warning:: Concider this experimental.
+
 Host/Group Vars
 ^^^^^^^^^^^^^^^
 
