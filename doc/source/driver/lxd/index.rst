@@ -15,7 +15,7 @@ On the LXD host both `lxd <https://github.com/lxc/lxd>`_ and the python module
 
 Containers will need ``python`` installed either as part of the image or as
 part of ``playbook.yml`` using the ``ansible`` `raw
-module<http://docs.ansible.com/ansible/raw_module.html>`_.
+module <http://docs.ansible.com/ansible/raw_module.html>`_.
 
 Usage
 -----
