@@ -285,6 +285,8 @@ class Molecule(object):
             return 'docker'
         elif 'openstack' in self.config.config:
             return 'openstack'
+        elif 'lxd' in self.config.config:
+            return 'lxd'
 
     def _get_driver(self):
         """
@@ -309,6 +311,9 @@ class Molecule(object):
         elif driver == 'openstack':
             from molecule.driver import openstackdriver
             return openstackdriver.OpenstackDriver(self)
+        elif driver == 'lxd':
+            from molecule.driver import lxddriver
+            return lxddriver.LxdDriver(self)
         raise basedriver.InvalidDriverSpecified()
 
     def _get_ssh_config(self):
